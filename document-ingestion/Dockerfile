@@ -14,6 +14,5 @@ WORKDIR /app
 COPY --from=builder /app/document-ingestion .
 
 EXPOSE 8080
-EXPOSE 50051
 
 CMD ["./document-ingestion"]

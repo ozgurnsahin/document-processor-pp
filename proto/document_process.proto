@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package document;
+
+option go_package = "github.com/ozgurnsahin/document-processor-pp/proto";
+
+service DocumentService {
+  rpc UploadDocument(UploadDocumentRequest) returns (UploadDocumentResponse);
+  
+  rpc GetDocumentStatus(DocumentStatusRequest) returns (DocumentStatusResponse);
+}
+
+message UploadDocumentRequest {
+  bytes content = 1;     // The document content as binary data
+  string filename = 2;   // The filename
+  string content_type = 3;  // MIME type like "application/pdf"
+}
+
+message UploadDocumentResponse {
+  string document_id = 1;  // A unique ID for the uploaded document
+  string status = 2;      // Initial status like "processing"
+}
+
+message DocumentStatusRequest {
+  string document_id = 1;  // The ID of the document to check
+}
+
+message DocumentStatusResponse {
+  string document_id = 1;  // Document ID
+  string status = 2;      // Status like "processing", "completed", "failed"
+  string error_message = 3;  // Error message if any
+}
+
