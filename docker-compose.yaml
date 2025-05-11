@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  document-ingestion:
+    build: ./document-ingestion
+    ports: 
+          - "8080:8080"
+          - "50051:50051"
+    volumes:
+            - ./document-ingestion:/app
+    environment:
+            - PROCESSING_SERVICE_ADDR=document-processing:50052
