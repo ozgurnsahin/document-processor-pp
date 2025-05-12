@@ -54,7 +54,7 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Reads file 
-	file, header, err := r.FormFile("document")
+	file, _, err := r.FormFile("document")
 	if err != nil {
         http.Error(w, "Error retrieving file: "+err.Error(), http.StatusBadRequest)
         return
@@ -68,7 +68,7 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-	_, err := io.Copy(tempFile, file)
+	_, err = io.Copy(tempFile, file)
 	if err != nil {
         http.Error(w, "Error saving file: "+err.Error(), http.StatusInternalServerError)
         return
@@ -80,4 +80,14 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+	fmt.Fprintf(w, "File read successfully!\n")
+    fmt.Fprintf(w, "Name: %s\n", doc.Name)
+    fmt.Fprintf(w, "Size: %d bytes\n", doc.Size)
+	fmt.Fprintf(w, "Content: %s\n", doc.Content)
+
 }
+
+func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Service is healthy!")
+}
+
