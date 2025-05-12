@@ -1,6 +1,10 @@
 fastapi==0.95.1
 uvicorn==0.22.0
+pydantic==1.10.7
 grpcio==1.54.0
 grpcio-tools==1.54.0
 protobuf==4.22.3
-python-multipart==0.0.6
+langchain==0.0.200
+langchain_text_splitters==0.0.1
+openai==0.27.8
+pydantic==1.10.7
