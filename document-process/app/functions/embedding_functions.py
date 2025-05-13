@@ -1,7 +1,7 @@
 import numpy as np
 from openai import OpenAI
 from dotenv import load_dotenv
-import List
+from typing import List
 
 
 class EmbeddingFunctions:

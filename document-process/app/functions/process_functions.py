@@ -6,7 +6,6 @@ from langchain_text_splitters import (
 import fitz
 import pymupdf4llm
 import io
-import re
 
 
 class ProcessorFunctions:
@@ -52,36 +51,8 @@ class ProcessorFunctions:
             for i, page in enumerate(markdown_pages):
                 splits = self.markdown_splitter.split_text(page["text"])
                 for split in splits:
-                    if not len(split.page_content) > 5 or re.match(
-                        r"^[^\w]*$", split.page_content
-                    ):
+                    if not len(split.page_content) > 5:
                         continue
-                    elif (
-                        split.metadata and split.page_content[0] == "#"
-                    ):  # Header detection
-                        pdf_data["sentences"].append(split.page_content)
-                        pdf_data["page_number"].append(i + 1)
-                    elif (
-                        split.page_content[0] == "*"
-                        and split.page_content[-1] == "*"
-                        and (
-                            re.match(
-                                r"(\*{2,})(\d+(?:\.\d+)*)\s*(\*{2,})?(.*)$",
-                                split.page_content,
-                            )
-                            or re.match(
-                                r"(\*{1,3})?([A-Z][a-zA-Z\s\-]+)(\*{1,3})?$",
-                                split.page_content,
-                            )
-                        )
-                    ):  # Sub-Header and Header variant detection
-                        pdf_data["sentences"].append(split.page_content)
-                        pdf_data["page_number"].append(i + 1)
-                    elif (
-                        split.page_content[0] == "|" and split.page_content[-1] == "|"
-                    ):  # Table detection
-                        pdf_data["sentences"].append(split.page_content)
-                        pdf_data["page_number"].append(i + 1)
                     else:
                         pdf_data["sentences"].append(split.page_content)
                         pdf_data["page_number"].append(i + 1)
@@ -90,8 +61,8 @@ class ProcessorFunctions:
     def _process_txt(self, file_bytes: bytes):
         text_data = {"sentences": [], "page_number": []}
         text = file_bytes.decode("utf-8", errors="ignore")
-        valid_sentences = text.split(".")
-        for sentence in valid_sentences:
+        splits = self.text_splitters(text)
+        for sentence in splits:
             text_data["sentences"].extend(sentence.strip())
-        text_data["page_number"].extend([1] * len(valid_sentences))
+        text_data["page_number"].extend([1] * len(splits))
         return text_data
