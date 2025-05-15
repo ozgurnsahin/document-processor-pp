@@ -8,7 +8,10 @@ import (
 	"path/filepath"
 
 	models "github.com/ozgurnsahin/document-processor-pp/document-ingestion/data_models"
+	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/processor"
 )
+
+var processorClient *processor.Client
 
 func FileReader(filePath string) (*models.Document, error) {
 
@@ -30,10 +33,10 @@ func FileReader(filePath string) (*models.Document, error) {
 	
 
 	doc := &models.Document{
-		Path: filePath,
-		Name: filepath.Base(filePath),
+		FileName: filepath.Base(filePath),
 		Content: content,
 		Size: fileInfo.Size(),
+		Status: models.StatusReceived,
 	}
 
 	return doc, nil
@@ -81,7 +84,7 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
     }
 
 	fmt.Fprintf(w, "File read successfully!\n")
-    fmt.Fprintf(w, "Name: %s\n", doc.Name)
+    fmt.Fprintf(w, "Name: %s\n", doc.FileName)
     fmt.Fprintf(w, "Size: %d bytes\n", doc.Size)
 	fmt.Fprintf(w, "Content: %s\n", doc.Content)
 
