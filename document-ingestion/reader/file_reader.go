@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/google/uuid"
+
 	models "github.com/ozgurnsahin/document-processor-pp/document-ingestion/data_models"
 	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/processor"
 )
@@ -50,7 +52,7 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Cheks the the file size 
-	err := r.ParseMultipartForm(10 << 20)
+	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
 		http.Error(w, "Error file exceeds file limir" +err.Error(), http.StatusBadRequest)
 		return 
@@ -83,7 +85,17 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+	doc.ID = uuid.New().String()
+	doc.Status = models.StatusProcessing
+
+	err = processorClient.ProcessDocument(doc)
+	if err != nil {
+		http.Error(w, "Error at communications process: "+err.Error(), http.StatusInternalServerError)
+        return
+	}
+
 	fmt.Fprintf(w, "File read successfully!\n")
+	fmt.Fprintf(w, "Doc id: %s\n", doc.ID)
     fmt.Fprintf(w, "Name: %s\n", doc.FileName)
     fmt.Fprintf(w, "Size: %d bytes\n", doc.Size)
 	fmt.Fprintf(w, "Content: %s\n", doc.Content)

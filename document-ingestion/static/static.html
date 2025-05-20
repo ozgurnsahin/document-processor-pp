@@ -1,19 +1,50 @@
+<!-- document-ingestion/static/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Document Upload Test</title>
+    <title>Document Processor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload Document</h1>
-    <form action="http://localhost:8080/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="document" required>
-        <button type="submit">Upload</button>
+    <h1>Document Processor</h1>
+    
+    <h2>Upload Document</h2>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="document">Select file to upload:</label>
+        <input type="file" id="document" name="document" required>
+        <button type="submit">Upload and Process</button>
     </form>
-    <h2>Or Read Local File (Server Side)</h2>
-    <form action="/read-local" method="get">
-        <label for="path">File path on server:</label>
-        <input type="text" id="path" name="path" required placeholder="/app/sample-documents/sample.txt">
-    <button type="submit">Read File</button>
-</form>
 </body>
 </html>

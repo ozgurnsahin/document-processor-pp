@@ -54,3 +54,11 @@ func (c *Client) ProcessDocument(doc *models.Document) error{
 	return nil
 
 }
+
+func (c *Client) Close() error{
+	if c.conn != nil {
+		return c.conn.Close()
+	}
+
+	return nil
+}

@@ -4,12 +4,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/processor"
 	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/reader"
 )
 
 
+
 func main() {
+
+    ServiceAddr := os.Getenv("PROCESSING_SERVICE_ADDR")
+    if ServiceAddr == "" {
+        ServiceAddr = "document-processing:50052"
+    }
+
+    processorClient, err := processor.NewClient(ServiceAddr)
+    if err != nil {
+		log.Fatalf("Failed to initialize processor client: %v", err)
+	}
+	defer processorClient.Close()
 
     // Set up HTTP server
 	http.Handle("/", http.FileServer(http.Dir("./static")))
