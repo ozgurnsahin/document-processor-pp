@@ -13,7 +13,6 @@ import (
 	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/processor"
 )
 
-var processorClient *processor.Client
 
 func FileReader(filePath string) (*models.Document, error) {
 
@@ -44,8 +43,8 @@ func FileReader(filePath string) (*models.Document, error) {
 	return doc, nil
 }
 
-func HandleUpload(w http.ResponseWriter, r *http.Request) {
-	// Checks if the method is
+func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Client) {
+	// Checks if the method is allowed
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
         return
@@ -88,7 +87,7 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 	doc.ID = uuid.New().String()
 	doc.Status = models.StatusProcessing
 
-	err = processorClient.ProcessDocument(doc)
+	err = client.ProcessDocument(doc)
 	if err != nil {
 		http.Error(w, "Error at communications process: "+err.Error(), http.StatusInternalServerError)
         return

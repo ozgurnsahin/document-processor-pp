@@ -27,7 +27,9 @@ func main() {
 
     // Set up HTTP server
 	http.Handle("/", http.FileServer(http.Dir("./static")))
-    http.HandleFunc("/upload", reader.HandleUpload)
+    http.HandleFunc("/upload",func(w http.ResponseWriter, r *http.Request){
+        reader.HandleUpload(w, r, processorClient)
+    })
     http.HandleFunc("/health", reader.HealthCheckHandler)
     
     // Start HTTP server
