@@ -36,6 +36,7 @@ func FileReader(filePath string) (*models.Document, error) {
 	doc := &models.Document{
 		FileName: filepath.Base(filePath),
 		Content: content,
+		ContentType: filepath.Base(filePath),
 		Size: fileInfo.Size(),
 		Status: models.StatusReceived,
 	}
@@ -92,12 +93,6 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
 		http.Error(w, "Error at communications process: "+err.Error(), http.StatusInternalServerError)
         return
 	}
-
-	fmt.Fprintf(w, "File read successfully!\n")
-	fmt.Fprintf(w, "Doc id: %s\n", doc.ID)
-    fmt.Fprintf(w, "Name: %s\n", doc.FileName)
-    fmt.Fprintf(w, "Size: %d bytes\n", doc.Size)
-	fmt.Fprintf(w, "Content: %s\n", doc.Content)
 
 }
 
