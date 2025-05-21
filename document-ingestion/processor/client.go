@@ -34,7 +34,7 @@ func NewClient(serviceAddr string) (*Client, error){
 
 }
 
-func (c *Client) ProcessDocument(doc *models.Document) error{
+func (c *Client) ProcessDocument(doc *models.Document) ([]*models.DocumentChunk, error){
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 30)
 	defer cancel()
 
@@ -45,13 +45,30 @@ func (c *Client) ProcessDocument(doc *models.Document) error{
 		ContentType: doc.ContentType,
 	}
 
-	_, err := c.client.ProcessDocument(ctx, req)
+	resp, err := c.client.ProcessDocument(ctx, req)
 	if err != nil {
-		return fmt.Errorf("error calling processing service: %w", err)
+		return nil, fmt.Errorf("error calling processing service: %w", err)
 	}
 
 	fmt.Printf("Document sent for processing with ID: %s\n", doc.ID)
-	return nil
+
+	if resp.Status != "completed" {
+		return nil, fmt.Errorf("processing failed: %s", resp.Error)
+	}
+
+	chunks := make([]*models.DocumentChunk, 0, len(resp.Chunks))
+    for i, chunk := range resp.Chunks {
+        chunks = append(chunks, &models.DocumentChunk{
+            DocumentID: doc.ID,
+            ChunkIndex: i,
+            Text:       chunk.Text,
+            Vector:     chunk.Vector,
+        })
+    }
+
+    fmt.Printf("Received %d processed chunks for document: %s\n", len(chunks), doc.ID)
+
+    return chunks, nil
 
 }
 

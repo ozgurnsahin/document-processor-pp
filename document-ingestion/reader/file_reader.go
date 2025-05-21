@@ -88,12 +88,24 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
 	doc.ID = uuid.New().String()
 	doc.Status = models.StatusProcessing
 
-	err = client.ProcessDocument(doc)
+	chunks,err := client.ProcessDocument(doc)
 	if err != nil {
 		http.Error(w, "Error at communications process: "+err.Error(), http.StatusInternalServerError)
         return
 	}
 
+	fmt.Printf("Successfully processed document %s with %d chunks\n", doc.ID, len(chunks))
+    
+    // Update document status
+    doc.Status = models.StatusCompleted
+	w.Header().Set("Content-Type", "application/json")
+    fmt.Fprintf(w, "{\n")
+    fmt.Fprintf(w, "  \"document_id\": \"%s\",\n", doc.ID)
+    fmt.Fprintf(w, "  \"filename\": \"%s\",\n", doc.FileName)
+    fmt.Fprintf(w, "  \"status\": \"%s\",\n", doc.Status)
+    fmt.Fprintf(w, "  \"size\": %d,\n", doc.Size)
+    fmt.Fprintf(w, "  \"chunks\": %d\n", len(chunks))
+    fmt.Fprintf(w, "}\n")
 }
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
