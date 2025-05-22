@@ -1,11 +1,10 @@
-import os
 import logging
 import signal
 import sys
 from fastapi import FastAPI
 import uvicorn
 
-from app.grpc_server import GRPCServer
+from app.grpc_server.grpc_server import GRPCServer
 
 
 logging.basicConfig(
@@ -20,8 +19,7 @@ app = FastAPI(title="Document Processing Service")
 async def startup_event():
     global grpc_server
 
-    grpc_port = os.getenv("GRPC_PORT")
-    grpc_server = GRPCServer(port=grpc_port)
+    grpc_server = GRPCServer()
     grpc_server.start()
 
     logger.info("Application startup complete")
@@ -56,4 +54,4 @@ signal.signal(signal.SIGINT, handle_shutdown)
 signal.signal(signal.SIGTERM, handle_shutdown)
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8081, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8081, reload=True)

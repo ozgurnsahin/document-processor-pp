@@ -55,7 +55,7 @@ class ProcessorService:
             )
 
 
-class GRPCserver:
+class GRPCServer:
     def __init__(self, port=50052, max_workers=10):
         self.port = port
         self.max_workers = max_workers
@@ -68,7 +68,7 @@ class GRPCserver:
         )
 
         pb2_grpc.add_DocumentProcessorServiceServicer_to_server(
-            self.servicer, self.server
+            self.service, self.server
         )
 
         server_addr = f"[::]:{self.port}"
