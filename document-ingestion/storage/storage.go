@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	models "github.com/ozgurnsahin/document-processor-pp/document-ingestion/data_models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,6 +23,11 @@ type MongoDB struct{
 
 
 func NewMongoClient() (*MongoDB, error) {
+	err := godotenv.Load()
+    if err != nil {
+        log.Printf("Warning: Error loading .env file: %v", err)
+    }
+
 	mongoURI := os.Getenv("MONGODB_STRING")
 	dbName := os.Getenv("MONGODB_DB")
     if dbName == "" {
