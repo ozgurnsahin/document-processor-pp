@@ -55,19 +55,24 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
 	}
 
 	// Cheks the the file size 
-	err := r.ParseMultipartForm(32 << 20)
+	err := r.ParseMultipartForm(5 << 20)
 	if err != nil {
 		http.Error(w, "Error file exceeds file limir" +err.Error(), http.StatusBadRequest)
 		return 
 	}
 
 	// Reads file 
-	file, _, err := r.FormFile("document")
+	file, header, err := r.FormFile("document")
 	if err != nil {
         http.Error(w, "Error retrieving file: "+err.Error(), http.StatusBadRequest)
         return
     }
     defer file.Close()
+
+	if header.Size > 5*1024*1024 { // 5MB
+        http.Error(w, "File too large (max 5MB)", http.StatusBadRequest)
+        return
+    }
 
 	// Create a temperory files 
 	tempFile, err := os.CreateTemp("./upload", "upload-*.txt")

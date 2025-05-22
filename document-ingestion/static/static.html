@@ -35,6 +35,11 @@
         button:hover {
             background-color: #45a049;
         }
+        .file-info {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -42,9 +47,21 @@
     
     <h2>Upload Document</h2>
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <label for="document">Select file to upload:</label>
+        <label for="document">Select file to upload (max 5MB):</label>
         <input type="file" id="document" name="document" required>
+        <div class="file-info">Supported formats: PDF, TXT. Maximum file size: 5MB</div>
         <button type="submit">Upload and Process</button>
     </form>
+    
+    <script>
+        // JavaScript to check file size before upload
+        document.getElementById('document').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.size > 5 * 1024 * 1024) { // 5MB
+                alert('File is too large. Maximum size is 5MB.');
+                e.target.value = '';
+            }
+        });
+    </script>
 </body>
 </html>

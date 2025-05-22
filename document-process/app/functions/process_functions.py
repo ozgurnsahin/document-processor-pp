@@ -61,7 +61,7 @@ class ProcessorFunctions:
     def _process_txt(self, file_bytes: bytes):
         text_data = {"sentences": [], "page_number": []}
         text = file_bytes.decode("utf-8", errors="ignore")
-        splits = self.text_splitters(text)
+        splits = self.text_splitters.split_text(text)
         for sentence in splits:
             text_data["sentences"].extend(sentence.strip())
         text_data["page_number"].extend([1] * len(splits))

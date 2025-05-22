@@ -15,7 +15,7 @@ class ProcessorService:
         self.processor = ProcessorFunctions()
         self.embedder = EmbeddingFunctions()
 
-    def ProcessDocument(self, request):
+    def ProcessDocument(self, request, context):
         try:
             document_id = request.document_id
             filename = request.filename
@@ -63,8 +63,13 @@ class GRPCServer:
         self.service = ProcessorService()
 
     def start(self):
+        options = [
+            ("grpc.max_receive_message_length", 10 * 1024 * 1024),  # 10MB
+            ("grpc.max_send_message_length", 10 * 1024 * 1024),  # 10MB
+        ]
+
         self.server = grpc.server(
-            futures.ThreadPoolExecutor(max_workers=self.max_workers)
+            futures.ThreadPoolExecutor(max_workers=self.max_workers), options=options
         )
 
         pb2_grpc.add_DocumentProcessorServiceServicer_to_server(

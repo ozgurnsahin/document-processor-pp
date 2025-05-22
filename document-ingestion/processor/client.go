@@ -3,9 +3,11 @@ package processor
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -20,9 +22,20 @@ type Client struct{
 }
 
 func NewClient() (*Client, error){
+	err := godotenv.Load()
+    if err != nil {
+        log.Printf("Warning: Error loading .env file: %v", err)
+    }
+
 	serviceAddr := os.Getenv("PROCESSING_SERVICE_ADDR")
 
-	conn, err := grpc.NewClient(serviceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	maxMsgSize := 10 * 1024 * 1024 // 10MB
+
+	conn, err := grpc.NewClient(serviceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()), 
+			grpc.WithDefaultCallOptions(
+            grpc.MaxCallRecvMsgSize(maxMsgSize),
+            grpc.MaxCallSendMsgSize(maxMsgSize),
+        ))
 	if err != nil{
 		return nil, fmt.Errorf("connection with the grpc server could not created: %w", err)
 	}
@@ -33,12 +46,12 @@ func NewClient() (*Client, error){
 		serviceAddr: serviceAddr,
 		client: client,
 		conn: conn,
-	},nil
+	}, nil
 
 }
 
 func (c *Client) ProcessDocument(doc *models.Document) ([]*models.DocumentChunk, error){
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 30)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 600)
 	defer cancel()
 
 	req := &pb.ProcessRequest{
