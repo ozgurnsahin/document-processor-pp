@@ -6,5 +6,5 @@ grpcio-tools==1.54.0
 protobuf==4.22.3
 langchain==0.0.200
 langchain_text_splitters==0.0.1
-openai==0.27.8
+openai>=1.0.0
 python-dotenv==1.0.0
