@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	models "github.com/ozgurnsahin/document-processor-pp/document-ingestion/data_models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,9 +21,12 @@ type MongoDB struct{
 }
 
 
-func NewMongoClient(dbName string) (*MongoDB, error) {
+func NewMongoClient() (*MongoDB, error) {
 	mongoURI := os.Getenv("MONGODB_STRING")
-
+	dbName := os.Getenv("MONGODB_DB")
+    if dbName == "" {
+        dbName = "docDev"
+    }
 	clientInfos := options.Client().ApplyURI(mongoURI)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -65,4 +69,75 @@ func NewMongoClient(dbName string) (*MongoDB, error) {
         documents: documents,
         chunks:    chunks,
     }, nil
+}
+
+func (m *MongoDB) InsertDocuments(doc *models.Document) error{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+	defer cancel()
+
+	bsonDoc := bson.M{
+		"id":           doc.ID,
+        "filename":     doc.FileName,
+        "content_type": doc.ContentType,
+        "size":         doc.Size,
+        "uploaded_at":  doc.UploadedAt,
+        "status":       doc.Status,
+	}
+
+	opt := options.Update().SetUpsert(true)
+	_, err := m.documents.UpdateOne(
+		ctx,
+		bson.M{"id": doc.ID},
+		bson.M{"$set": bsonDoc},
+		opt,
+	)
+
+	if err != nil {
+		return fmt.Errorf("failed to save document: %w", err)
+	}
+
+	return nil
+}
+
+func (m *MongoDB) InsertChunks(documentID string, chunks []*models.DocumentChunk) error{
+	if len(chunks) == 0 {
+        return nil
+    }
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5* time.Second)
+	defer cancel()
+
+	_, err := m.chunks.DeleteMany(ctx, bson.M{"document_id": documentID})
+
+	if err != nil {
+		return fmt.Errorf("failed to delete existing chunks: %w", err)
+	}
+
+	var chunksToInsert []interface{}
+    for _, chunk := range chunks {
+        chunksToInsert = append(chunksToInsert, bson.M{
+            "document_id": chunk.DocumentID,
+            "chunk_index": chunk.ChunkIndex,
+            "text":        chunk.Text,
+            "vector":      chunk.Vector,
+        })
+    }
+
+	_, err = m.chunks.InsertMany(ctx, chunksToInsert)
+    if err != nil {
+        return fmt.Errorf("failed to insert chunks: %w", err)
+    }
+
+	return nil
+}
+
+func (m *MongoDB) Close() error {
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    
+    if err := m.client.Disconnect(ctx); err != nil {
+        return fmt.Errorf("failed to disconnect from MongoDB: %w", err)
+    }
+    
+    return nil
 }

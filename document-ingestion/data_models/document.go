@@ -25,5 +25,4 @@ const (
 	StatusReceived   = "received"
 	StatusProcessing = "processing"
 	StatusCompleted  = "completed"
-	StatusFailed     = "failed"
 )

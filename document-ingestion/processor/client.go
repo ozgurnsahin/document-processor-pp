@@ -3,6 +3,7 @@ package processor
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -18,7 +19,9 @@ type Client struct{
 	conn        *grpc.ClientConn
 }
 
-func NewClient(serviceAddr string) (*Client, error){
+func NewClient() (*Client, error){
+	serviceAddr := os.Getenv("PROCESSING_SERVICE_ADDR")
+
 	conn, err := grpc.NewClient(serviceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil{
 		return nil, fmt.Errorf("connection with the grpc server could not created: %w", err)

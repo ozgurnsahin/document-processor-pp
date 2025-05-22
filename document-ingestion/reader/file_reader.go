@@ -1,16 +1,19 @@
 package reader
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/google/uuid"
 
 	models "github.com/ozgurnsahin/document-processor-pp/document-ingestion/data_models"
 	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/processor"
+	"github.com/ozgurnsahin/document-processor-pp/document-ingestion/storage"
 )
 
 
@@ -44,7 +47,7 @@ func FileReader(filePath string) (*models.Document, error) {
 	return doc, nil
 }
 
-func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Client) {
+func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Client, mongodb *storage.MongoDB) {
 	// Checks if the method is allowed
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -87,6 +90,13 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
 
 	doc.ID = uuid.New().String()
 	doc.Status = models.StatusProcessing
+	doc.UploadedAt = time.Now()
+
+	err = mongodb.InsertDocuments(doc)
+	if err != nil {
+		http.Error(w, "Error saving document: "+err.Error(), http.StatusInternalServerError)
+        return
+	}
 
 	chunks,err := client.ProcessDocument(doc)
 	if err != nil {
@@ -94,18 +104,24 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
         return
 	}
 
+	err = mongodb.InsertChunks(doc.ID, chunks)
+    if err != nil {
+        http.Error(w, "Error saving chunks: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
+
 	fmt.Printf("Successfully processed document %s with %d chunks\n", doc.ID, len(chunks))
     
     // Update document status
     doc.Status = models.StatusCompleted
 	w.Header().Set("Content-Type", "application/json")
-    fmt.Fprintf(w, "{\n")
-    fmt.Fprintf(w, "  \"document_id\": \"%s\",\n", doc.ID)
-    fmt.Fprintf(w, "  \"filename\": \"%s\",\n", doc.FileName)
-    fmt.Fprintf(w, "  \"status\": \"%s\",\n", doc.Status)
-    fmt.Fprintf(w, "  \"size\": %d,\n", doc.Size)
-    fmt.Fprintf(w, "  \"chunks\": %d\n", len(chunks))
-    fmt.Fprintf(w, "}\n")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+        "document_id": doc.ID,
+        "filename":    doc.FileName,
+        "status":      doc.Status,
+        "size":        doc.Size,
+    })
+    
 }
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
