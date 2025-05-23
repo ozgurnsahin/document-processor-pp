@@ -78,7 +78,7 @@ func NewMongoClient() (*MongoDB, error) {
 }
 
 func (m *MongoDB) InsertDocuments(doc *models.Document) error{
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 300)
 	defer cancel()
 
 	bsonDoc := bson.M{
@@ -110,7 +110,7 @@ func (m *MongoDB) InsertChunks(documentID string, chunks []*models.DocumentChunk
         return nil
     }
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5* time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 300* time.Second)
 	defer cancel()
 
 	_, err := m.chunks.DeleteMany(ctx, bson.M{"document_id": documentID})

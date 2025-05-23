@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 
 	models "github.com/ozgurnsahin/document-processor-pp/document-ingestion/data_models"
@@ -35,16 +37,31 @@ func FileReader(filePath string) (*models.Document, error) {
 		return nil, fmt.Errorf("file does not exists: %s", filePath)
 	}
 	
+	mtype := mimetype.Detect(content)
+	contentType := strings.TrimSpace(mtype.String())
+
+	if !isSupportedFileType(contentType) {
+		return nil, fmt.Errorf("unsupported file type: %s", contentType)
+	}
 
 	doc := &models.Document{
 		FileName: filepath.Base(filePath),
 		Content: content,
-		ContentType: filepath.Base(filePath),
+		ContentType: contentType,
 		Size: fileInfo.Size(),
 		Status: models.StatusReceived,
 	}
 
 	return doc, nil
+}
+
+func isSupportedFileType(mimeType string) bool {
+	supportedTypes := map[string]bool{
+		"application/pdf": true,
+		"text/plain; charset=utf-8":      true,
+		"text/rtf; charset=utf-8":        true,
+	}
+	return supportedTypes[mimeType]
 }
 
 func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Client, mongodb *storage.MongoDB) {

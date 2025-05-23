@@ -26,15 +26,13 @@ class ProcessorFunctions:
             self.headers_to_split_on, strip_headers=False, return_each_line=True
         )
 
-    def read_file(self, file_bytes: bytes, file_name: str):
-        file_type = file_name.split(".")[-1]
-
-        if file_type == "pdf":
+    def read_file(self, file_bytes: bytes, content_type: str):
+        if content_type == "application/pdf":
             return self._process_pdf(file_bytes=file_bytes)
-        elif file_type in ["txt", "rtf"]:
+        elif content_type in ["text/plain; charset=utf-8", "text/rtf; charset=utf-8"]:
             return self._process_txt(file_bytes=file_bytes)
         else:
-            raise ValueError(f"Unsupported file type: {file_type}")
+            raise ValueError(f"Unsupported file type: {content_type}")
 
     def process_document_content(self, file) -> List[Dict[str, any]]:
         processed_text = self.read_file(file)
@@ -63,6 +61,6 @@ class ProcessorFunctions:
         text = file_bytes.decode("utf-8", errors="ignore")
         splits = self.text_splitters.split_text(text)
         for sentence in splits:
-            text_data["sentences"].extend(sentence.strip())
+            text_data["sentences"].append(sentence.strip())
         text_data["page_number"].extend([1] * len(splits))
         return text_data

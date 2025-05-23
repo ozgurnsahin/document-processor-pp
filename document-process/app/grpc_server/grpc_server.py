@@ -20,13 +20,14 @@ class ProcessorService:
             document_id = request.document_id
             filename = request.filename
             content = request.content
+            content_type = request.content_type
 
             logger.info(
                 f"Received document: {document_id}, {filename}, size: {len(content)} bytes"
             )
 
             processed_data = self.processor.read_file(
-                file_bytes=content, file_name=filename
+                file_bytes=content, content_type=content_type
             )
 
             logger.info(f"Processed document: {document_id}")
