@@ -8,3 +8,5 @@ langchain==0.0.200
 langchain_text_splitters==0.0.1
 openai>=1.0.0
 python-dotenv==1.0.0
+pymupdf4llm
+PyMuPDF

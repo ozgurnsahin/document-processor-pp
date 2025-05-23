@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -19,22 +17,9 @@ import (
 )
 
 
-func FileReader(filePath string) (*models.Document, error) {
-
-	if _, err := os.Stat(filePath); os.IsNotExist(err){
-		return nil, fmt.Errorf("file does not exists: %s", filePath)
-	}
-
-	content, err := os.ReadFile(filePath) 
-
-	if err != nil {
-		return nil, fmt.Errorf("error occured while file reading")
-	}
-
-	fileInfo, errinfo := os.Stat(filePath) 
-	
-	if errinfo != nil {
-		return nil, fmt.Errorf("file does not exists: %s", filePath)
+func FileReader(content []byte, filename string, fileSize int64) (*models.Document, error) {
+	if len(content) == 0 {
+		return nil, fmt.Errorf("file content is empty")
 	}
 	
 	mtype := mimetype.Detect(content)
@@ -45,10 +30,10 @@ func FileReader(filePath string) (*models.Document, error) {
 	}
 
 	doc := &models.Document{
-		FileName: filepath.Base(filePath),
+		FileName: filename,
 		Content: content,
 		ContentType: contentType,
-		Size: fileInfo.Size(),
+		Size: fileSize,
 		Status: models.StatusReceived,
 	}
 
@@ -57,7 +42,7 @@ func FileReader(filePath string) (*models.Document, error) {
 
 func isSupportedFileType(mimeType string) bool {
 	supportedTypes := map[string]bool{
-		"application/pdf": true,
+		"application/pdf": 				  true,
 		"text/plain; charset=utf-8":      true,
 		"text/rtf; charset=utf-8":        true,
 	}
@@ -91,20 +76,13 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
         return
     }
 
-	// Create a temperory files 
-	tempFile, err := os.CreateTemp("./upload", "upload-*.txt")
+	fileContent, err := io.ReadAll(file)
 	if err != nil {
-        http.Error(w, "Error creating tempfile: "+err.Error(), http.StatusInternalServerError)
-        return
-    }
+		http.Error(w, "Error reading file content: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	_, err = io.Copy(tempFile, file)
-	if err != nil {
-        http.Error(w, "Error saving file: "+err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-	doc, err := FileReader(tempFile.Name()) 
+	doc, err := FileReader(fileContent, header.Filename, header.Size) 
 	if err != nil {
         http.Error(w, "Error reading tempfile: "+err.Error(), http.StatusInternalServerError)
         return

@@ -5,9 +5,17 @@ services:
     build: ./document-ingestion
     ports: 
             - "8080:8080"
-            - "50051:50051"
-    volumes:
-            - ./document-ingestion/app:/app/app  # Mount the locally built binary
-            - ./document-ingestion/static:/app/static  # Mount static files if needed
     environment:
             - PROCESSING_SERVICE_ADDR=document-processing:50052
+    env_file:
+            - ./document-ingestion/.env
+    depends_on:
+            - document-processing
+
+  document-processing:
+    build: ./document-process
+    ports:
+        - "8081:8081"
+        - "50052:50052"
+    env_file:
+        - ./document-process/.env 
