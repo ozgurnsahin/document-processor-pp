@@ -4,7 +4,7 @@
 <head>
     <title>Document Processor</title>
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
@@ -35,10 +35,56 @@
         button:hover {
             background-color: #45a049;
         }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
         .file-info {
             color: #666;
             font-size: 0.9em;
             margin-top: 5px;
+        }
+        
+        /* Spinner styles */
+        .spinner {
+            display: none;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .spinner-icon {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Success message styles */
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        /* Error message styles */
+        .error-message {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -46,12 +92,24 @@
     <h1>Document Processor</h1>
     
     <h2>Upload Document</h2>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
         <label for="document">Select file to upload (max 5MB):</label>
         <input type="file" id="document" name="document" required>
         <div class="file-info">Supported formats: PDF, TXT. Maximum file size: 5MB</div>
-        <button type="submit">Upload and Process</button>
+        <button type="submit" id="uploadBtn">Upload and Process</button>
     </form>
+
+        <!-- Loading spinner -->
+    <div class="spinner" id="loadingSpinner">
+        <div class="spinner-icon"></div>
+        <p>Processing your document...</p>
+    </div>
+    
+    <!-- Success message -->
+    <div class="success-message" id="successMessage"></div>
+    
+    <!-- Error message -->
+    <div class="error-message" id="errorMessage"></div>
     
     <script>
         // JavaScript to check file size before upload
@@ -62,6 +120,88 @@
                 e.target.value = '';
             }
         });
+        // Show spinner and process status message
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('document');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('Please select a file to upload.');
+                return;
+            }
+            
+            // Show loading spinner and disable form
+            showLoading();
+            
+            // Create FormData and send request
+            const formData = new FormData();
+            formData.append('document', file);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || 'Upload failed');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideLoading();
+                showSuccess(`Upload complete! File "${data.filename}" has been processed successfully.`);
+                // Reset form for new upload
+                document.getElementById('uploadForm').reset();
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Upload failed: ' + error.message);
+            });
+        });
+        
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('uploadBtn').disabled = true;
+            document.getElementById('uploadBtn').textContent = 'Processing...';
+            hideMessages();
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('uploadBtn').disabled = false;
+            document.getElementById('uploadBtn').textContent = 'Upload and Process';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            
+            // Hide success message after 30 seconds
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 30000);
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Hide error message after 10 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 10000);
+        }
+        
+        function hideMessages() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
     </script>
 </body>
 </html>

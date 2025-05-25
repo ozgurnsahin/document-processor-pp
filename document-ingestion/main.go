@@ -26,13 +26,19 @@ func main() {
     }
     defer mongodb.Close()
     
-    // Set up HTTP server
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        if r.URL.Path == "/" {
+            http.ServeFile(w, r, "./static/static.html")
+            return
+        }
+        http.FileServer(http.Dir("./static")).ServeHTTP(w, r)
+    })
+
     http.HandleFunc("/upload",func(w http.ResponseWriter, r *http.Request){
         reader.HandleUpload(w, r, processorClient, mongodb)
     })
     http.HandleFunc("/health", reader.HealthCheckHandler)
-    
+
     // Start HTTP server
     port := 8080
     fmt.Printf("Starting HTTP server on port %d...\n", port)
