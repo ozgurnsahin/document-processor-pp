@@ -209,6 +209,102 @@ func (x *ProcessedChunk) GetVector() []float32 {
 	return nil
 }
 
+type EmbeddingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Text          string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmbeddingRequest) Reset() {
+	*x = EmbeddingRequest{}
+	mi := &file_proto_document_process_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmbeddingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmbeddingRequest) ProtoMessage() {}
+
+func (x *EmbeddingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_document_process_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmbeddingRequest.ProtoReflect.Descriptor instead.
+func (*EmbeddingRequest) Descriptor() ([]byte, []int) {
+	return file_proto_document_process_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *EmbeddingRequest) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+type EmbeddingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Vector        []float32              `protobuf:"fixed32,1,rep,packed,name=vector,proto3" json:"vector,omitempty"`
+	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmbeddingResponse) Reset() {
+	*x = EmbeddingResponse{}
+	mi := &file_proto_document_process_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmbeddingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmbeddingResponse) ProtoMessage() {}
+
+func (x *EmbeddingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_document_process_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmbeddingResponse.ProtoReflect.Descriptor instead.
+func (*EmbeddingResponse) Descriptor() ([]byte, []int) {
+	return file_proto_document_process_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *EmbeddingResponse) GetVector() []float32 {
+	if x != nil {
+		return x.Vector
+	}
+	return nil
+}
+
+func (x *EmbeddingResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 var File_proto_document_process_proto protoreflect.FileDescriptor
 
 const file_proto_document_process_proto_rawDesc = "" +
@@ -228,9 +324,15 @@ const file_proto_document_process_proto_rawDesc = "" +
 	"\x06chunks\x18\x04 \x03(\v2\x18.document.ProcessedChunkR\x06chunks\"<\n" +
 	"\x0eProcessedChunk\x12\x12\n" +
 	"\x04text\x18\x01 \x01(\tR\x04text\x12\x16\n" +
-	"\x06vector\x18\x02 \x03(\x02R\x06vector2b\n" +
+	"\x06vector\x18\x02 \x03(\x02R\x06vector\"&\n" +
+	"\x10EmbeddingRequest\x12\x12\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\"A\n" +
+	"\x11EmbeddingResponse\x12\x16\n" +
+	"\x06vector\x18\x01 \x03(\x02R\x06vector\x12\x14\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error2\xae\x01\n" +
 	"\x18DocumentProcessorService\x12F\n" +
-	"\x0fProcessDocument\x12\x18.document.ProcessRequest\x1a\x19.document.ProcessResponseB4Z2github.com/ozgurnsahin/document-processor-pp/protob\x06proto3"
+	"\x0fProcessDocument\x12\x18.document.ProcessRequest\x1a\x19.document.ProcessResponse\x12J\n" +
+	"\x0fCreateEmbedding\x12\x1a.document.EmbeddingRequest\x1a\x1b.document.EmbeddingResponseB4Z2github.com/ozgurnsahin/document-processor-pp/protob\x06proto3"
 
 var (
 	file_proto_document_process_proto_rawDescOnce sync.Once
@@ -244,18 +346,22 @@ func file_proto_document_process_proto_rawDescGZIP() []byte {
 	return file_proto_document_process_proto_rawDescData
 }
 
-var file_proto_document_process_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_proto_document_process_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_proto_document_process_proto_goTypes = []any{
-	(*ProcessRequest)(nil),  // 0: document.ProcessRequest
-	(*ProcessResponse)(nil), // 1: document.ProcessResponse
-	(*ProcessedChunk)(nil),  // 2: document.ProcessedChunk
+	(*ProcessRequest)(nil),    // 0: document.ProcessRequest
+	(*ProcessResponse)(nil),   // 1: document.ProcessResponse
+	(*ProcessedChunk)(nil),    // 2: document.ProcessedChunk
+	(*EmbeddingRequest)(nil),  // 3: document.EmbeddingRequest
+	(*EmbeddingResponse)(nil), // 4: document.EmbeddingResponse
 }
 var file_proto_document_process_proto_depIdxs = []int32{
 	2, // 0: document.ProcessResponse.chunks:type_name -> document.ProcessedChunk
 	0, // 1: document.DocumentProcessorService.ProcessDocument:input_type -> document.ProcessRequest
-	1, // 2: document.DocumentProcessorService.ProcessDocument:output_type -> document.ProcessResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
+	3, // 2: document.DocumentProcessorService.CreateEmbedding:input_type -> document.EmbeddingRequest
+	1, // 3: document.DocumentProcessorService.ProcessDocument:output_type -> document.ProcessResponse
+	4, // 4: document.DocumentProcessorService.CreateEmbedding:output_type -> document.EmbeddingResponse
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -272,7 +378,7 @@ func file_proto_document_process_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_document_process_proto_rawDesc), len(file_proto_document_process_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -19,12 +19,23 @@ class DocumentProcessorServiceStub(object):
                 request_serializer=proto_dot_document__process__pb2.ProcessRequest.SerializeToString,
                 response_deserializer=proto_dot_document__process__pb2.ProcessResponse.FromString,
                 )
+        self.CreateEmbedding = channel.unary_unary(
+                '/document.DocumentProcessorService/CreateEmbedding',
+                request_serializer=proto_dot_document__process__pb2.EmbeddingRequest.SerializeToString,
+                response_deserializer=proto_dot_document__process__pb2.EmbeddingResponse.FromString,
+                )
 
 
 class DocumentProcessorServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def ProcessDocument(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateEmbedding(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +48,11 @@ def add_DocumentProcessorServiceServicer_to_server(servicer, server):
                     servicer.ProcessDocument,
                     request_deserializer=proto_dot_document__process__pb2.ProcessRequest.FromString,
                     response_serializer=proto_dot_document__process__pb2.ProcessResponse.SerializeToString,
+            ),
+            'CreateEmbedding': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateEmbedding,
+                    request_deserializer=proto_dot_document__process__pb2.EmbeddingRequest.FromString,
+                    response_serializer=proto_dot_document__process__pb2.EmbeddingResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +78,22 @@ class DocumentProcessorService(object):
         return grpc.experimental.unary_unary(request, target, '/document.DocumentProcessorService/ProcessDocument',
             proto_dot_document__process__pb2.ProcessRequest.SerializeToString,
             proto_dot_document__process__pb2.ProcessResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CreateEmbedding(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/document.DocumentProcessorService/CreateEmbedding',
+            proto_dot_document__process__pb2.EmbeddingRequest.SerializeToString,
+            proto_dot_document__process__pb2.EmbeddingResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -88,6 +88,27 @@ func (c *Client) ProcessDocument(doc *models.Document) ([]*models.DocumentChunk,
 
 }
 
+func (c *Client) CreateInputEmbeddings(text string) ([]float32, error) {
+	context, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
+	defer cancel()
+
+	req := &pb.EmbeddingRequest{
+        Text: text,
+    }
+
+	resp, err := c.client.CreateEmbedding(context, req)
+	if err != nil {
+		return nil, fmt.Errorf("error calling embedding service: %w", err)
+	}
+
+	if resp.Error != "" {
+        return nil, fmt.Errorf("embedding service error: %s", resp.Error)
+    }
+
+    return resp.Vector, nil
+	
+}
+
 func (c *Client) Close() error{
 	if c.conn != nil {
 		return c.conn.Close()

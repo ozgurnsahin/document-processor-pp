@@ -55,6 +55,21 @@ class ProcessorService:
                 document_id=request.document_id, status="failed", error=e
             )
 
+    def CreateEmbeddingsFromInput(self, request, context):
+        try:
+            text = request.text
+            logger.info("Creating embedding for text")
+
+            embeddings = self.embedder.create_embedding_from_input(text)
+
+            response = pb2.EmbeddingResponse(vector=embeddings)
+
+            logger.info("Successfully created embedding")
+            return response
+        except Exception as e:
+            logger.error(f"error creating embedding: {e}")
+            return pb2.EmbeddingResponse(error=str(e))
+
 
 class GRPCServer:
     def __init__(self, port=50052, max_workers=10):

@@ -26,3 +26,13 @@ class EmbeddingFunctions:
             )
 
         return np.vstack(file_embeddings)
+
+    def create_embedding_from_input(self, sentence: str) -> np.ndarray:
+        query_embedding = self.client.embeddings.create(
+            model="text-embedding-3-small",
+            input=sentence,
+        )
+
+        return np.array(query_embedding.data[0].embedding, dtype=np.float16).reshape(
+            1, -1
+        )

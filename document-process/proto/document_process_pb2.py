@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1cproto/document_process.proto\x12\x08\x64ocument\"^\n\x0eProcessRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x14\n\x0c\x63ontent_type\x18\x03 \x01(\t\x12\x13\n\x0b\x64ocument_id\x18\x04 \x01(\t\"o\n\x0fProcessResponse\x12\x13\n\x0b\x64ocument_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12(\n\x06\x63hunks\x18\x04 \x03(\x0b\x32\x18.document.ProcessedChunk\".\n\x0eProcessedChunk\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06vector\x18\x02 \x03(\x02\x32\x62\n\x18\x44ocumentProcessorService\x12\x46\n\x0fProcessDocument\x12\x18.document.ProcessRequest\x1a\x19.document.ProcessResponseB4Z2github.com/ozgurnsahin/document-processor-pp/protob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1cproto/document_process.proto\x12\x08\x64ocument\"^\n\x0eProcessRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x14\n\x0c\x63ontent_type\x18\x03 \x01(\t\x12\x13\n\x0b\x64ocument_id\x18\x04 \x01(\t\"o\n\x0fProcessResponse\x12\x13\n\x0b\x64ocument_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\x12\r\n\x05\x65rror\x18\x03 \x01(\t\x12(\n\x06\x63hunks\x18\x04 \x03(\x0b\x32\x18.document.ProcessedChunk\".\n\x0eProcessedChunk\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06vector\x18\x02 \x03(\x02\" \n\x10\x45mbeddingRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\"2\n\x11\x45mbeddingResponse\x12\x0e\n\x06vector\x18\x01 \x03(\x02\x12\r\n\x05\x65rror\x18\x02 \x01(\t2\xae\x01\n\x18\x44ocumentProcessorService\x12\x46\n\x0fProcessDocument\x12\x18.document.ProcessRequest\x1a\x19.document.ProcessResponse\x12J\n\x0f\x43reateEmbedding\x12\x1a.document.EmbeddingRequest\x1a\x1b.document.EmbeddingResponseB4Z2github.com/ozgurnsahin/document-processor-pp/protob\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'proto.document_process_pb2', globals())
@@ -27,6 +27,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _PROCESSRESPONSE._serialized_end=249
   _PROCESSEDCHUNK._serialized_start=251
   _PROCESSEDCHUNK._serialized_end=297
-  _DOCUMENTPROCESSORSERVICE._serialized_start=299
-  _DOCUMENTPROCESSORSERVICE._serialized_end=397
+  _EMBEDDINGREQUEST._serialized_start=299
+  _EMBEDDINGREQUEST._serialized_end=331
+  _EMBEDDINGRESPONSE._serialized_start=333
+  _EMBEDDINGRESPONSE._serialized_end=383
+  _DOCUMENTPROCESSORSERVICE._serialized_start=386
+  _DOCUMENTPROCESSORSERVICE._serialized_end=560
 # @@protoc_insertion_point(module_scope)

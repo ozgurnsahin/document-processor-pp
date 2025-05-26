@@ -6,6 +6,7 @@ option go_package = "github.com/ozgurnsahin/document-processor-pp/proto";
 
 service DocumentProcessorService {
   rpc ProcessDocument(ProcessRequest) returns (ProcessResponse);
+  rpc CreateEmbedding(EmbeddingRequest) returns (EmbeddingResponse);
 }
 
 message ProcessRequest {
@@ -25,4 +26,13 @@ message ProcessResponse {
 message ProcessedChunk {
   string text = 1;            // The text segment
   repeated float vector = 2;  // The embedding vector
+}
+
+message EmbeddingRequest {
+  string text = 1;
+}
+
+message EmbeddingResponse {
+  repeated float vector = 1;
+  string error = 2;
 }

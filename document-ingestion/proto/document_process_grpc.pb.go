@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	DocumentProcessorService_ProcessDocument_FullMethodName = "/document.DocumentProcessorService/ProcessDocument"
+	DocumentProcessorService_CreateEmbedding_FullMethodName = "/document.DocumentProcessorService/CreateEmbedding"
 )
 
 // DocumentProcessorServiceClient is the client API for DocumentProcessorService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DocumentProcessorServiceClient interface {
 	ProcessDocument(ctx context.Context, in *ProcessRequest, opts ...grpc.CallOption) (*ProcessResponse, error)
+	CreateEmbedding(ctx context.Context, in *EmbeddingRequest, opts ...grpc.CallOption) (*EmbeddingResponse, error)
 }
 
 type documentProcessorServiceClient struct {
@@ -47,11 +49,22 @@ func (c *documentProcessorServiceClient) ProcessDocument(ctx context.Context, in
 	return out, nil
 }
 
+func (c *documentProcessorServiceClient) CreateEmbedding(ctx context.Context, in *EmbeddingRequest, opts ...grpc.CallOption) (*EmbeddingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EmbeddingResponse)
+	err := c.cc.Invoke(ctx, DocumentProcessorService_CreateEmbedding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DocumentProcessorServiceServer is the server API for DocumentProcessorService service.
 // All implementations must embed UnimplementedDocumentProcessorServiceServer
 // for forward compatibility.
 type DocumentProcessorServiceServer interface {
 	ProcessDocument(context.Context, *ProcessRequest) (*ProcessResponse, error)
+	CreateEmbedding(context.Context, *EmbeddingRequest) (*EmbeddingResponse, error)
 	mustEmbedUnimplementedDocumentProcessorServiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedDocumentProcessorServiceServer struct{}
 
 func (UnimplementedDocumentProcessorServiceServer) ProcessDocument(context.Context, *ProcessRequest) (*ProcessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProcessDocument not implemented")
+}
+func (UnimplementedDocumentProcessorServiceServer) CreateEmbedding(context.Context, *EmbeddingRequest) (*EmbeddingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateEmbedding not implemented")
 }
 func (UnimplementedDocumentProcessorServiceServer) mustEmbedUnimplementedDocumentProcessorServiceServer() {
 }
@@ -105,6 +121,24 @@ func _DocumentProcessorService_ProcessDocument_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DocumentProcessorService_CreateEmbedding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmbeddingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DocumentProcessorServiceServer).CreateEmbedding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DocumentProcessorService_CreateEmbedding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DocumentProcessorServiceServer).CreateEmbedding(ctx, req.(*EmbeddingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DocumentProcessorService_ServiceDesc is the grpc.ServiceDesc for DocumentProcessorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -115,6 +149,10 @@ var DocumentProcessorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ProcessDocument",
 			Handler:    _DocumentProcessorService_ProcessDocument_Handler,
+		},
+		{
+			MethodName: "CreateEmbedding",
+			Handler:    _DocumentProcessorService_CreateEmbedding_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
