@@ -137,6 +137,95 @@ func (m *MongoDB) InsertChunks(documentID string, chunks []*models.DocumentChunk
 	return nil
 }
 
+func (m *MongoDB) SearchDocumetns(queryVector []float32) ([]string, error){
+	context, cancel := context.WithTimeout(context.Background(), 30 * time.Second)
+	defer cancel()
+
+	pipeline := bson.A{
+		bson.M{
+			"$vectorsearch": bson.M{
+				"index":         "vector_index",
+				"path":          "vector", 
+				"queryVector":   queryVector,
+				"numCandidates": 100,
+				"limit":         5,
+			},
+		},
+		bson.M{
+			"$addFields": bson.M{
+				"score" : bson.M{
+					"$meta": "vectorSearchScore"},
+				},
+			},
+		bson.M{
+			"$match": bson.M{
+				"score": bson.M{"$gte": 0.6},
+				},
+			},
+		bson.M{
+			"$project": bson.M{
+				"document_id": 1,
+				"score": 1,
+				},
+			},
+	}
+
+	cursor, err := m.chunks.Aggregate(context, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("vector search failed: %w", err)
+	}
+	defer cursor.Close(context)
+
+	documentIDs := make(map[string]bool)
+	for cursor.Next(context) {
+		var result struct {
+			DocumentID string  `bson:"document_id"`
+            Score      float64 `bson:"score"`
+		}
+
+		if err := cursor.Decode(&result); err != nil {
+            continue
+        }
+
+		documentIDs[result.DocumentID] = true
+	}
+
+	if len(documentIDs) == 0 {
+		return []string{},nil
+	}
+
+	return m.getDocuments(documentIDs)
+
+}
+
+func (m *MongoDB) getDocuments(documentids map[string]bool) ([]string, error){
+	context, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+	defer cancel()
+
+	ids := make([]string ,0 ,len(documentids))
+	for id := range documentids {
+		ids = append(ids, id)
+	}
+
+	cursor, err := m.documents.Find(context,  bson.M{"id": bson.M{"$in": ids}})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get document names: %w", err)
+	}
+	defer cursor.Close(context)
+
+	var documents []models.Document
+	if err := cursor.All(context, &documents); err != nil{
+		return nil, fmt.Errorf("failed to decode documents: %w", err)
+	}
+
+	names := make([]string,len(documents))
+	for i, doc := range documents {
+		names[i] = doc.FileName
+	}
+
+	return names, nil
+}
+
 func (m *MongoDB) Close() error {
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()

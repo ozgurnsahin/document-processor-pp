@@ -86,6 +86,47 @@
             border-radius: 4px;
             margin: 20px 0;
         }
+        .search-results {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .search-results h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .document-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .document-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .document-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .no-results {
+            color: #666;
+            font-style: italic;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +139,17 @@
         <div class="file-info">Supported formats: PDF, TXT. Maximum file size: 5MB</div>
         <button type="submit" id="uploadBtn">Upload and Process</button>
     </form>
+
+    <h2>Search Documents</h2>
+    <form id="searchForm">
+        <label for="searchQuery">Enter search text:</label>
+        <input type="text" id="searchQuery" name="searchQuery" placeholder="e.g., machine learning, data analysis..." required>
+        <div class="file-info">Search through all uploaded documents using AI-powered similarity search</div>
+        <button type="submit" id="searchBtn">Search Documents</button>
+    </form>
+
+    <!-- Search Results -->
+    <div class="search-results" id="searchResults"></div>
 
         <!-- Loading spinner -->
     <div class="spinner" id="loadingSpinner">
@@ -201,6 +253,83 @@
         function hideMessages() {
             document.getElementById('successMessage').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Search functionality
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const queryInput = document.getElementById('searchQuery');
+            const query = queryInput.value.trim();
+            
+            if (!query) {
+                showError('Please enter a search query.');
+                return;
+            }
+            
+            // Show loading spinner and disable search
+            showSearchLoading();
+            
+            // Send search request
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text || 'Search failed');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideSearchLoading();
+                showSearchResults(data.documents, data.message);
+            })
+            .catch(error => {
+                hideSearchLoading();
+                showError('Search failed: ' + error.message);
+            });
+        });
+        
+        function showSearchLoading() {
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('searchBtn').textContent = 'Searching...';
+            hideMessages();
+        }
+        
+        function hideSearchLoading() {
+            document.getElementById('searchBtn').disabled = false;
+            document.getElementById('searchBtn').textContent = 'Search Documents';
+        }
+        
+        function showSearchResults(documents, message) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (documents.length === 0) {
+                resultsDiv.innerHTML = `
+                    <h3>Search Results</h3>
+                    <p class="no-results">${message}</p>
+                `;
+            } else {
+                const documentList = documents.map(doc => `<li>📄 ${doc}</li>`).join('');
+                resultsDiv.innerHTML = `
+                    <h3>Search Results</h3>
+                    <p>${message}:</p>
+                    <ul class="document-list">
+                        ${documentList}
+                    </ul>
+                `;
+            }
+            
+            resultsDiv.style.display = 'block';
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>

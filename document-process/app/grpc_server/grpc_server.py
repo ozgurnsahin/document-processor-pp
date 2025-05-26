@@ -55,7 +55,7 @@ class ProcessorService:
                 document_id=request.document_id, status="failed", error=e
             )
 
-    def CreateEmbeddingsFromInput(self, request, context):
+    def CreateEmbedding(self, request, context):
         try:
             text = request.text
             logger.info("Creating embedding for text")

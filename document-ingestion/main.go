@@ -37,6 +37,11 @@ func main() {
     http.HandleFunc("/upload",func(w http.ResponseWriter, r *http.Request){
         reader.HandleUpload(w, r, processorClient, mongodb)
     })
+
+    http.HandleFunc("/search",func(w http.ResponseWriter, r *http.Request){
+        reader.HandleSearch(w, r, processorClient, mongodb)
+    })
+
     http.HandleFunc("/health", reader.HealthCheckHandler)
 
     // Start HTTP server

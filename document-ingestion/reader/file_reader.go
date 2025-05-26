@@ -124,6 +124,56 @@ func HandleUpload(w http.ResponseWriter, r *http.Request, client *processor.Clie
     
 }
 
+func HandleSearch(w http.ResponseWriter, r *http.Request, client *processor.Client, m *storage.MongoDB) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+	}
+
+	var request struct {
+		Query string `json:"query"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+        return
+	}
+
+	if request.Query == "" {
+		http.Error(w, "Query can not be empty", http.StatusBadRequest)
+        return
+	}
+
+	queryVector, err := client.CreateInputEmbeddings(request.Query)
+	if err != nil {
+		http.Error(w, "Error creating embedding: "+err.Error(), http.StatusInternalServerError)
+        return
+	}
+
+	documentNames, err := m.SearchDocumetns(queryVector)
+	if err != nil {
+		http.Error(w, "Search failed: "+err.Error(), http.StatusInternalServerError)
+        return
+	}
+
+	var response map[string]interface{}
+	if len(documentNames) == 0 {
+		response = map[string]interface{}{
+            "documents": []string{},
+            "message":   "No similar documents found",
+        }
+	} else {
+		response = map[string]interface{}{
+            "documents": documentNames,
+            "message":  "Similar documents returned",
+        }
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+
+}
+
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Service is healthy!")
 }
