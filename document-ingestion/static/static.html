@@ -134,9 +134,9 @@
     
     <h2>Upload Document</h2>
     <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-        <label for="document">Select file to upload (max 5MB):</label>
+        <label for="document">Select file to upload (max 20MB):</label>
         <input type="file" id="document" name="document" required>
-        <div class="file-info">Supported formats: PDF, TXT. Maximum file size: 5MB</div>
+        <div class="file-info">Supported formats: PDF, TXT. Maximum file size: 20MB</div>
         <button type="submit" id="uploadBtn">Upload and Process</button>
     </form>
 
@@ -167,8 +167,8 @@
         // JavaScript to check file size before upload
         document.getElementById('document').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file && file.size > 5 * 1024 * 1024) { // 5MB
-                alert('File is too large. Maximum size is 5MB.');
+            if (file && file.size > 20 * 1024 * 1024) { // 20MB
+                alert('File is too large. Maximum size is 20MB.');
                 e.target.value = '';
             }
         });
