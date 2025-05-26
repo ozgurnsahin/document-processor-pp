@@ -33,6 +33,4 @@ class EmbeddingFunctions:
             input=sentence,
         )
 
-        return np.array(query_embedding.data[0].embedding, dtype=np.float16).reshape(
-            1, -1
-        )
+        return np.array(query_embedding.data[0].embedding, dtype=np.float32)

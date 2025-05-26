@@ -143,7 +143,7 @@ func (m *MongoDB) SearchDocumetns(queryVector []float32) ([]string, error){
 
 	pipeline := bson.A{
 		bson.M{
-			"$vectorsearch": bson.M{
+			"$vectorSearch": bson.M{
 				"index":         "vector_index",
 				"path":          "vector", 
 				"queryVector":   queryVector,
